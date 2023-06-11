@@ -2,7 +2,7 @@ const userModel = require("../models/User")
 
 // handle all errors
 function handleErrors(err){
-    console.log(err.message,err.code);
+    // console.log(err.message,err.code);
     let errorObject = {email:"",password:""};
     // validation for requirements of email and password
     if (err.message.includes("user validation failed")){
