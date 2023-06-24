@@ -18,8 +18,17 @@ function handleErrors(err) {
         errorObject.email = "Email already registered";
         return errorObject;
     }
-    // console.log(errorObject);
-
+    //checking incorrect email whn login
+    if (err.message.includes("incorrect email")) {
+        // console.log(err.message);
+        errorObject["email"] = err.message
+        return errorObject;
+    }
+    //checking incorrect password whn login
+    if (err.message.includes("incorrect password")) {
+        errorObject["password"] = err.message
+        return errorObject;
+    }
 }
 function createToken(data) {
     // payload
@@ -41,16 +50,26 @@ async function post_signup(req, res) {
         let token = createToken(userDoc._id);
         res.cookie("jwt", token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
         await userDoc.save();
-        res.status(201).json({user:userDoc._id});
+        res.status(201).json({ user: userDoc._id });
     } catch (errors) {
         // console.log(error);
         const error = handleErrors(errors);
         res.status(400).json({ error });
     }
 }
-function post_login(req, res) {
-    console.log(req.body);
-    res.send("new login");
+async function post_login(req, res) {
+    const { email, password } = req.body;
+    try {
+        const user = await userModel.login(email, password);
+        let token = createToken(userDoc._id);
+        res.cookie("jwt", token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
+        res.status(200).json({ user: user._id });
+    } catch (errors) {
+        const error = handleErrors(errors);
+        res.status(400).json({ error });
+    }
+    // console.log(req.body);
+    // res.send("new login");
 }
 
 module.exports = {

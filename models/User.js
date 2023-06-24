@@ -21,6 +21,17 @@ userSchema.pre("save",async function(next){
     // console.log(doc);
     next();
 })
+userSchema.statics.login = async function(email,password){
+    const user = await this.findOne({email});
+    if(user){
+        const pass = await bcrypt.compare(password,user.password);
+        if (pass){
+            return user;
+        }
+        throw Error("incorrect password");
+    }
+    throw Error("incorrect email");
+}
 // userSchema.post("save",function(doc,next){
 //     console.log("User created", doc);
 //     next();
